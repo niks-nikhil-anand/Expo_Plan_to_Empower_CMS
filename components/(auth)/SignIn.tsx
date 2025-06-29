@@ -1,7 +1,14 @@
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native'
 import React, { useState } from 'react'
 
-const SignIn = () => {
+// Add props interface
+interface SignInProps {
+  onBack?: () => void;
+  onContactAdmin?: () => void;
+}
+
+// Update component to accept props
+const SignIn: React.FC<SignInProps> = ({ onBack, onContactAdmin }) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -40,11 +47,10 @@ const SignIn = () => {
   }
 
   const handleContactAdmin = () => {
-    Alert.alert(
-      'Contact Administration', 
-      'For password reset, account unlock, technical support, or access issues, please contact your system administrator at admin@company.com or call +1-555-ADMIN (23646).'
-    )
-  }
+    if (onContactAdmin) {
+      onContactAdmin();
+    }
+  };
 
   return (
     <View className="flex-1 items-center justify-center bg-white px-8">
@@ -101,8 +107,8 @@ const SignIn = () => {
 
       {/* Contact Administration */}
       <TouchableOpacity onPress={handleContactAdmin}>
-        <Text className="text-gray-600 text-sm  text-center">
-          Need help? Contact Administration
+        <Text className="text-gray-600 text-sm text-center">
+          Need help? <Text className="underline">Contact Administration</Text>
         </Text>
       </TouchableOpacity>
     </View>

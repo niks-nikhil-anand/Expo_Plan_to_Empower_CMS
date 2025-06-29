@@ -28,7 +28,11 @@ interface Slide {
   image: any;
 }
 
-const SplashScreen: React.FC = () => {
+interface SplashScreenProps {
+  onSignIn?: () => void;
+}
+
+const SplashScreen: React.FC<SplashScreenProps> = ({ onSignIn }) => {
   const [currentSlide, setCurrentSlide] = useState<number>(0)
   const scrollViewRef = useRef<ScrollView>(null)
 
@@ -65,7 +69,10 @@ const SplashScreen: React.FC = () => {
 
   const handleSignIn = (): void => {
     console.log('Sign In pressed')
-    // Add your navigation logic here
+    // Call the onSignIn prop if provided
+    if (onSignIn) {
+      onSignIn();
+    }
   }
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>): void => {
@@ -103,15 +110,11 @@ const SplashScreen: React.FC = () => {
         >
           {slides.map((slide, index) => (
             <View key={slide.id} className="items-center justify-center px-6" style={{ width }}>
-              
-              {/* Feature Icon */}
-              <View className="mb-5">
-                <Text className="text-5xl">{slide.icon}</Text>
-              </View>
+                         
 
               {/* Feature Image */}
               <View 
-                className="bg-gray-50 rounded-2xl mb-8  overflow-hidden"
+                className="bg-gray-50 rounded-2xl mb-8 shadow-lg overflow-hidden"
                 style={{ 
                   width: width * 0.8, 
                   height: height * 0.3,

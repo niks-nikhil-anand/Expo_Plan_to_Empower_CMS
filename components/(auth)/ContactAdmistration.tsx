@@ -1,5 +1,15 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, SafeAreaView, Modal } from 'react-native'
-import React, { useState } from 'react'
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  SafeAreaView,
+  Modal,
+} from 'react-native';
+import React, { useState } from 'react';
+import Icon from 'react-native-vector-icons/MaterialIcons'
 
 interface ContactFormData {
   name: string;
@@ -13,13 +23,17 @@ interface ApiResponse {
   message?: string;
 }
 
-const ContactAdmistration: React.FC = () => {
-  const [selectedIssue, setSelectedIssue] = useState<string>('')
-  const [showIssueList, setShowIssueList] = useState<boolean>(false)
-  const [name, setName] = useState<string>('')
-  const [email, setEmail] = useState<string>('')
-  const [message, setMessage] = useState<string>('')
-  const [loading, setLoading] = useState<boolean>(false)
+interface ContactAdmistrationProps {
+  onBack?: () => void;
+}
+
+const ContactAdmistration: React.FC<ContactAdmistrationProps> = ({ onBack }) => {
+  const [selectedIssue, setSelectedIssue] = useState<string>('');
+  const [showIssueList, setShowIssueList] = useState<boolean>(false);
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const issueTypes: string[] = [
     'Password Reset',
@@ -36,21 +50,27 @@ const ContactAdmistration: React.FC = () => {
     'Performance Issues',
     'Integration Problems',
     'Training Request',
-    'Other'
-  ]
+    'Other',
+  ];
 
   const handleIssueSelect = (issue: string): void => {
-    setSelectedIssue(issue)
-    setShowIssueList(false)
-  }
+    setSelectedIssue(issue);
+    setShowIssueList(false);
+  };
+
+  const handleBack = (): void => {
+    if (onBack) {
+      onBack();
+    }
+  };
 
   const handleSubmit = async (): Promise<void> => {
     if (!name || !email || !selectedIssue || !message) {
-      Alert.alert('Error', 'Please fill in all required fields')
-      return
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       const response = await fetch('/api/contact-admin', {
         method: 'POST',
@@ -64,54 +84,65 @@ const ContactAdmistration: React.FC = () => {
           message,
           timestamp: new Date().toISOString(),
         } as ContactFormData),
-      })
+      });
 
-      const data: ApiResponse = await response.json()
+      const data: ApiResponse = await response.json();
 
       if (response.ok) {
-        Alert.alert('Success', 'Your request has been submitted successfully. Administrator will contact you within 24 hours.')
+        Alert.alert(
+          'Success',
+          'Your request has been submitted successfully. Administrator will contact you within 24 hours.'
+        );
         // Reset form
-        setName('')
-        setEmail('')
-        setSelectedIssue('')
-        setMessage('')
+        setName('');
+        setEmail('');
+        setSelectedIssue('');
+        setMessage('');
       } else {
-        Alert.alert('Error', data.message || 'Failed to submit request')
+        Alert.alert('Error', data.message || 'Failed to submit request');
       }
     } catch (error: unknown) {
-      Alert.alert('Error', 'Network error. Please try again.')
-      console.error('Network error:', error)
+      Alert.alert('Error', 'Network error. Please try again.');
+      console.error('Network error:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <SafeAreaView className="flex-1 bg-white my-5">
+    <SafeAreaView className="my-5 flex-1 bg-white">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-6 py-4">
+          {/* Back Button */}
+          {onBack && (
+            <TouchableOpacity onPress={handleBack} className="mb-4 mt-2 flex-row items-center">
+               <Icon name="arrow-back" size={24} color="#000000" style={{ marginRight: 8 }} />
+              <Text className="text-black text-base font-medium">Back to Sign In</Text>
+            </TouchableOpacity>
+          )}
+
           {/* Header */}
-          <View className="items-center mb-10 mt-4">
-            <View className="w-20 h-20 bg-black rounded-full items-center justify-center mb-6 shadow-lg">
-              <Text className="text-white text-3xl font-bold">P</Text>
+          <View className="mb-10 mt-4 items-center">
+            <View className="mb-6 h-20 w-20 items-center justify-center rounded-full bg-black shadow-lg">
+              <Text className="text-3xl font-bold text-white">P</Text>
             </View>
-            <Text className="text-3xl font-bold text-black text-center mb-3">
+            <Text className="mb-3 text-center text-3xl font-bold text-black">
               Contact Administration
             </Text>
-            <Text className="text-gray-500 text-center text-base leading-6 px-4">
+            <Text className="px-4 text-center text-base leading-6 text-gray-500">
               We're here to help with any issues you're experiencing
             </Text>
           </View>
 
           {/* Form Container */}
-          <View className="bg-gray-50 rounded-2xl p-6 mb-6">
+          <View className="mb-6 rounded-2xl bg-gray-50 p-6">
             {/* Name Input */}
             <View className="mb-6">
-              <Text className="text-gray-800 text-base mb-3 font-semibold">
+              <Text className="mb-3 text-base font-semibold text-gray-800">
                 Full Name <Text className="text-red-500">*</Text>
               </Text>
               <TextInput
-                className="w-full px-5 py-4 border border-gray-200 rounded-xl text-black bg-white text-base shadow-sm"
+                className="w-full rounded-xl border border-gray-200 bg-white px-5 py-4 text-base text-black shadow-sm"
                 placeholder="Enter your full name"
                 placeholderTextColor="#9CA3AF"
                 value={name}
@@ -122,11 +153,11 @@ const ContactAdmistration: React.FC = () => {
 
             {/* Email Input */}
             <View className="mb-6">
-              <Text className="text-gray-800 text-base mb-3 font-semibold">
+              <Text className="mb-3 text-base font-semibold text-gray-800">
                 Email Address <Text className="text-red-500">*</Text>
               </Text>
               <TextInput
-                className="w-full px-5 py-4 border border-gray-200 rounded-xl text-black bg-white text-base shadow-sm"
+                className="w-full rounded-xl border border-gray-200 bg-white px-5 py-4 text-base text-black shadow-sm"
                 placeholder="Enter your email address"
                 placeholderTextColor="#9CA3AF"
                 value={email}
@@ -139,42 +170,40 @@ const ContactAdmistration: React.FC = () => {
 
             {/* Issue Type Selection */}
             <View className="mb-6">
-              <Text className="text-gray-800 text-base mb-3 font-semibold">
+              <Text className="mb-3 text-base font-semibold text-gray-800">
                 What's the issue? <Text className="text-red-500">*</Text>
               </Text>
-              <Text className="text-gray-500 text-sm mb-4">
+              <Text className="mb-4 text-sm text-gray-500">
                 Select the type of issue you're experiencing:
               </Text>
-              
+
               <TouchableOpacity
-                className={`w-full px-5 py-4 border rounded-xl shadow-sm ${
-                  selectedIssue 
-                    ? 'border-black bg-white' 
-                    : 'border-gray-200 bg-white'
+                className={`w-full rounded-xl border px-5 py-4 shadow-sm ${
+                  selectedIssue ? 'border-black bg-white' : 'border-gray-200 bg-white'
                 }`}
-                onPress={() => setShowIssueList(true)}
-              >
+                onPress={() => setShowIssueList(true)}>
                 <View className="flex-row items-center justify-between">
-                  <Text className={`text-base ${
-                    selectedIssue ? 'text-black font-medium' : 'text-gray-400'
-                  }`}>
+                  <Text
+                    className={`text-base ${
+                      selectedIssue ? 'font-medium text-black' : 'text-gray-400'
+                    }`}>
                     {selectedIssue || 'Select an issue type'}
                   </Text>
-                  <Text className="text-gray-400 text-lg">▼</Text>
+                  <Text className="text-lg text-gray-400">▼</Text>
                 </View>
               </TouchableOpacity>
             </View>
 
             {/* Message Input */}
             <View className="mb-6">
-              <Text className="text-gray-800 text-base mb-3 font-semibold">
+              <Text className="mb-3 text-base font-semibold text-gray-800">
                 Detailed Message <Text className="text-red-500">*</Text>
               </Text>
-              <Text className="text-gray-500 text-sm mb-4">
+              <Text className="mb-4 text-sm text-gray-500">
                 Please provide detailed information about your issue
               </Text>
               <TextInput
-                className="w-full px-5 py-4 border border-gray-200 rounded-xl text-black bg-white h-36 text-base shadow-sm"
+                className="h-36 w-full rounded-xl border border-gray-200 bg-white px-5 py-4 text-base text-black shadow-sm"
                 placeholder="Describe your issue in detail..."
                 placeholderTextColor="#9CA3AF"
                 value={message}
@@ -187,33 +216,32 @@ const ContactAdmistration: React.FC = () => {
 
             {/* Submit Button */}
             <TouchableOpacity
-              className={`w-full py-5 rounded-xl mb-4 shadow-lg ${
+              className={`mb-4 w-full rounded-xl py-5 shadow-lg ${
                 loading ? 'bg-gray-400' : 'bg-black'
               }`}
               onPress={handleSubmit}
-              disabled={loading}
-            >
-              <Text className="text-white text-center font-bold text-lg">
+              disabled={loading}>
+              <Text className="text-center text-lg font-bold text-white">
                 {loading ? 'Submitting...' : 'Submit Request'}
               </Text>
             </TouchableOpacity>
           </View>
 
           {/* Contact Info */}
-          <View className="bg-gray-100 p-6 rounded-2xl mb-6">
-            <Text className="text-gray-800 font-bold mb-4 text-lg">Emergency Contact:</Text>
+          <View className="mb-6 rounded-2xl bg-gray-100 p-6">
+            <Text className="mb-4 text-lg font-bold text-gray-800">Emergency Contact:</Text>
             <View className="space-y-3">
               <View className="flex-row items-center">
-                <Text className="text-gray-600 text-base mr-3">📧</Text>
-                <Text className="text-gray-700 text-base">admin@company.com</Text>
+                <Text className="mr-3 text-base text-gray-600">📧</Text>
+                <Text className="text-base text-gray-700">admin@company.com</Text>
               </View>
               <View className="flex-row items-center">
-                <Text className="text-gray-600 text-base mr-3">📞</Text>
-                <Text className="text-gray-700 text-base">+1-555-ADMIN (23646)</Text>
+                <Text className="mr-3 text-base text-gray-600">📞</Text>
+                <Text className="text-base text-gray-700">+1-555-ADMIN (23646)</Text>
               </View>
               <View className="flex-row items-center">
-                <Text className="text-gray-600 text-base mr-3">⏰</Text>
-                <Text className="text-gray-700 text-base">Response Time: Within 24 hours</Text>
+                <Text className="mr-3 text-base text-gray-600">⏰</Text>
+                <Text className="text-base text-gray-700">Response Time: Within 24 hours</Text>
               </View>
             </View>
           </View>
@@ -225,19 +253,17 @@ const ContactAdmistration: React.FC = () => {
         visible={showIssueList}
         transparent={true}
         animationType="slide"
-        onRequestClose={() => setShowIssueList(false)}
-      >
+        onRequestClose={() => setShowIssueList(false)}>
         <View className="flex-1 justify-end bg-black bg-opacity-50">
-          <SafeAreaView className="bg-white rounded-t-3xl">
+          <SafeAreaView className="rounded-t-3xl bg-white">
             <View className="p-6">
               {/* Modal Header */}
-              <View className="flex-row items-center justify-between mb-6">
+              <View className="mb-6 flex-row items-center justify-between">
                 <Text className="text-xl font-bold text-black">Select Issue Type</Text>
                 <TouchableOpacity
                   onPress={() => setShowIssueList(false)}
-                  className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center "
-                >
-                  <Text className="text-gray-600 text-lg font-bold">×</Text>
+                  className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 ">
+                  <Text className="text-lg font-bold text-gray-600">×</Text>
                 </TouchableOpacity>
               </View>
 
@@ -247,18 +273,16 @@ const ContactAdmistration: React.FC = () => {
                   {issueTypes.map((issue, index) => (
                     <TouchableOpacity
                       key={issue}
-                      className={`p-4 rounded-xl border-2 my-2 ${
-                        selectedIssue === issue 
-                          ? 'border-black bg-gray-100' 
+                      className={`my-2 rounded-xl border-2 p-4 ${
+                        selectedIssue === issue
+                          ? 'border-black bg-gray-100'
                           : 'border-gray-200 bg-white'
                       }`}
-                      onPress={() => handleIssueSelect(issue)}
-                    >
-                      <Text className={`text-base ${
-                        selectedIssue === issue 
-                          ? 'text-black font-semibold' 
-                          : 'text-gray-700'
-                      }`}>
+                      onPress={() => handleIssueSelect(issue)}>
+                      <Text
+                        className={`text-base ${
+                          selectedIssue === issue ? 'font-semibold text-black' : 'text-gray-700'
+                        }`}>
                         {issue}
                       </Text>
                     </TouchableOpacity>
@@ -270,7 +294,7 @@ const ContactAdmistration: React.FC = () => {
         </View>
       </Modal>
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default ContactAdmistration
+export default ContactAdmistration;
