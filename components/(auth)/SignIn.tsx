@@ -5,48 +5,29 @@ import React, { useState } from 'react'
 interface SignInProps {
   onBack?: () => void;
   onContactAdmin?: () => void;
+  onSignInSuccess?: () => void;
 }
 
 // Update component to accept props
-const SignIn: React.FC<SignInProps> = ({ onBack, onContactAdmin }) => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+const SignIn: React.FC<SignInProps> = ({ onBack, onContactAdmin, onSignInSuccess }) => {
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
 
-  const handleSignIn = async () => {
+  const handleSignIn = (): void => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields')
       return
     }
 
-    setLoading(true)
-    try {
-      const response = await fetch('/api/signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        Alert.alert('Success', 'Signed in successfully')
-      } else {
-        Alert.alert('Error', data.message || 'Sign in failed')
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Network error. Please try again.')
-    } finally {
-      setLoading(false)
+    // For now, just redirect to homepage without API call
+    // Will handle actual signin later
+    if (onSignInSuccess) {
+      onSignInSuccess()
     }
   }
 
-  const handleContactAdmin = () => {
+  const handleContactAdmin = (): void => {
     if (onContactAdmin) {
       onContactAdmin();
     }
